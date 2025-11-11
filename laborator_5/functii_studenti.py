@@ -55,3 +55,22 @@ def cmmmc(a,b):
             else
                 b-=a
         return produs//a
+#11
+def elimina_duplicate(lista):
+    rezultat = []
+
+    for x in lista:
+        if x not in rezultat:
+            rezultat.append(x)
+
+    text = "Fără duplicate: "
+    for i in range(len(rezultat)):
+        text = text + str(rezultat[i])
+        if i != len(rezultat) - 1:
+            text = text + ", "
+    return text
+
+
+lista_mea = [1, 4, 2, 4, 7, 2, 1]
+rezultat = elimina_duplicate(lista_mea)
+print(rezultat)
