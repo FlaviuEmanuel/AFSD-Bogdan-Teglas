@@ -1,0 +1,56 @@
+import csv
+
+glosar = {}
+
+def adauga():
+    termen = input("Termen: ")
+
+    if termen in glosar:
+        print("Exista deja")
+        return
+
+    definitie = input("Definitie: ")
+    categorie = input("Categorie: ")
+    exemplu = input("Exemplu: ")
+
+    glosar[termen] = {
+        "definitie": definitie,
+        "categorie": categorie,
+        "exemplu": exemplu
+    }
+
+
+def cauta():
+    termen = input("Cauta termen: ")
+
+    if termen in glosar:
+        print(glosar[termen])
+    else:
+        print("Nu exista")
+
+
+def afiseaza():
+    for t in glosar:
+        print(t, glosar[t])
+
+
+while True:
+
+    print("\n1 Adauga")
+    print("2 Cauta")
+    print("3 Afiseaza")
+    print("0 Iesire")
+
+    opt = input("Optiune: ")
+
+    if opt == "1":
+        adauga()
+
+    elif opt == "2":
+        cauta()
+
+    elif opt == "3":
+        afiseaza()
+
+    elif opt == "0":
+        break
