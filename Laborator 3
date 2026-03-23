@@ -1,0 +1,171 @@
+import csv
+import json
+
+produse = {}
+comanda = {}
+reducere = 0
+
+
+def citeste_produse():
+    with open("produse.csv", newline="") as f:
+        reader = csv.reader(f)
+        next(reader)
+
+        for row in reader:
+            produse[row[0]] = {
+                "nume": row[1],
+                "pret": float(row[2]),
+                "stoc": int(row[3])
+            }
+
+
+def citeste_reduceri():
+    with open("reduceri.json") as f:
+        return json.load(f)
+
+
+def afisare():
+    for id in produse:
+        p = produse[id]
+        print(id, "-", p["nume"], "-", p["pret"], "lei - stoc:", p["stoc"])
+
+
+def adauga():
+    id = input("ID produs: ")
+
+    if id not in produse:
+        print("Nu exista")
+        return
+
+    try:
+        cant = int(input("Cantitate: "))
+    except:
+        print("Numar invalid")
+        return
+
+    if cant <= 0:
+        print("Cantitate gresita")
+        return
+
+    deja = comanda.get(id, 0)
+
+    if deja + cant > produse[id]["stoc"]:
+        print("Stoc insuficient")
+        return
+
+    comanda[id] = deja + cant
+
+
+def calc_total():
+    s = 0
+    for id in comanda:
+        s += produse[id]["pret"] * comanda[id]
+    return s
+
+
+def aplica_reducere(total, reduceri):
+    global reducere
+
+    print("1 student")
+    print("2 happy")
+    print("3 cupon")
+    print("4 fara")
+
+    opt = input("Alege: ")
+
+    if opt == "4":
+        reducere = 0
+        return
+
+    tipuri = ["student", "happy", "cupon"]
+
+    if opt not in ["1", "2", "3"]:
+        print("Optiune gresita")
+        return
+
+    r = reduceri[tipuri[int(opt)-1]]
+
+    if total < r["prag"]:
+        print("Nu atingi pragul")
+        reducere = 0
+        return
+
+    if r["tip"] == "procent":
+        reducere = total * r["valoare"] / 100
+    else:
+        reducere = r["valoare"]
+
+    if reducere > total:
+        reducere = total
+
+
+def finalizeaza():
+    global reducere
+
+    if not comanda:
+        print("Comanda goala")
+        return
+
+    total = calc_total()
+    final = total - reducere
+
+    text = "\n--- BON ---\n"
+
+    for id in comanda:
+        p = produse[id]
+        cant = comanda[id]
+        subtotal = p["pret"] * cant
+
+        text += p["nume"] + " x" + str(cant) + " = " + str(subtotal) + "\n"
+
+    text += "Total: " + str(total) + "\n"
+    text += "Reducere: " + str(reducere) + "\n"
+    text += "Final: " + str(final) + "\n"
+
+    print(text)
+
+    with open("bon.txt", "w") as f:
+        f.write(text)
+
+    for id in comanda:
+        produse[id]["stoc"] -= comanda[id]
+
+    comanda.clear()
+    reducere = 0
+
+
+def meniu():
+    reduceri = citeste_reduceri()
+    citeste_produse()
+
+    while True:
+        print("\n1 Afisare produse")
+        print("2 Adauga produs")
+        print("3 Aplicare reducere")
+        print("4 Finalizare")
+        print("0 Iesire")
+
+        opt = input("Optiune: ")
+
+        if opt == "1":
+            afisare()
+
+        elif opt == "2":
+            adauga()
+
+        elif opt == "3":
+            t = calc_total()
+            print("Total:", t)
+            aplica_reducere(t, reduceri)
+
+        elif opt == "4":
+            finalizeaza()
+
+        elif opt == "0":
+            break
+
+        else:
+            print("Optiune invalida")
+
+
+meniu()
