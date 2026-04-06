@@ -1,0 +1,64 @@
+import csv
+
+
+def sortare_carti(lista):
+    n = len(lista)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if lista[j]['An'] > lista[j + 1]['An']:
+                lista[j], lista[j + 1] = lista[j + 1], lista[j]
+    return lista
+
+
+def incarca_csv():
+    carti = []
+    try:
+        with open('biblioteca.csv', mode='r', encoding='utf-8') as f:
+            cititor = csv.DictReader(f)
+            for rand in cititor:
+                rand['An'] = int(rand['An'])
+                carti.append(rand)
+    except FileNotFoundError:
+        pass
+    return carti
+
+
+def salveaza_csv(lista):
+    if not lista: return
+    campuri = ['Titlu', 'Autor', 'An', 'Gen']
+    with open('biblioteca.csv', mode='w', newline='', encoding='utf-8') as f:
+        scriitor = csv.DictWriter(f, fieldnames=campuri)
+        scriitor.writeheader()
+        scriitor.writerows(lista)
+
+
+biblioteca = incarca_csv()
+
+while True:
+    print("\n1. Lista carti (sortate dupa an)\n2. Adauga carte\n3. Cauta autor\n0. Salvare si Iesire")
+    opt = input("Alege: ")
+
+    if opt == "1":
+        carti_sortate = sortare_carti(biblioteca)
+        for c in carti_sortate:
+            print(f"{c['An']} | {c['Titlu']} | {c['Autor']} | {c['Gen']}")
+
+    elif opt == "2":
+        t = input("Titlu: ")
+        a = input("Autor: ")
+        an = int(input("An: "))
+        g = input("Gen: ")
+        biblioteca.append({'Titlu': t, 'Autor': a, 'An': an, 'Gen': g})
+
+    elif opt == "3":
+        cautare = input("Nume autor: ").lower()
+        gasit = False
+        for c in biblioteca:
+            if cautare in c['Autor'].lower():
+                print(f"Gasit: {c['Titlu']} ({c['An']})")
+                gasit = True
+        if not gasit: print("Nu am gasit nimic.")
+
+    elif opt == "0":
+        salveaza_csv(biblioteca)
+        break
